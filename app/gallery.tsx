@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Avatar from "boring-avatars";
 import {
   FaRegCircleXmark,
@@ -9,7 +9,7 @@ import {
   FaEnvelope,
 } from "react-icons/fa6";
 
-import Controls from "./controls";
+import Controls, { SortField, SortDirection } from "./controls";
 import Modal from "./modal";
 
 import { User } from "./types/user";
@@ -18,12 +18,41 @@ export type GalleryProps = {
   users: User[];
 };
 const Gallery = ({ users }: GalleryProps) => {
-  const [usersList, setUsersList] = useState(users);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sortField, setSortField] = useState<SortField>("name");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("ascending");
+
+  const sortedUsers = useMemo(() => {
+    const sorted = [...users].sort((a, b) => {
+      let aValue: string;
+      let bValue: string;
+
+      if (sortField === "name") {
+        aValue = a.name.toLowerCase();
+        bValue = b.name.toLowerCase();
+      } else if (sortField === "company") {
+        aValue = a.company.name.toLowerCase();
+        bValue = b.company.name.toLowerCase();
+      } else {
+        aValue = a.email.toLowerCase();
+        bValue = b.email.toLowerCase();
+      }
+
+      if (aValue < bValue) {
+        return sortDirection === "ascending" ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortDirection === "ascending" ? 1 : -1;
+      }
+      return 0;
+    });
+
+    return sorted;
+  }, [users, sortField, sortDirection]);
 
   const handleModalOpen = (id: number) => {
-    const user = usersList.find((item) => item.id === id) || null;
+    const user = sortedUsers.find((user) => user.id === id) || null;
 
     if (user) {
       setSelectedUser(user);
@@ -40,10 +69,15 @@ const Gallery = ({ users }: GalleryProps) => {
     <div className="user-gallery">
       <div className="heading">
         <h1 className="title">Users</h1>
-        <Controls />
+        <Controls
+          sortField={sortField}
+          sortDirection={sortDirection}
+          onSortFieldChange={setSortField}
+          onSortDirectionChange={setSortDirection}
+        />
       </div>
       <div className="items">
-        {usersList.map((user, index) => (
+        {sortedUsers.map((user, index) => (
           <div
             className="item user-card"
             key={index}
@@ -54,7 +88,13 @@ const Gallery = ({ users }: GalleryProps) => {
                 size={96}
                 name={user.name}
                 variant="marble"
-                colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]}
+                colors={[
+                  "#92A1C6",
+                  "#146A7C",
+                  "#F0AB3D",
+                  "#C271B4",
+                  "#C20D90",
+                ]}
               />
             </div>
             <div className="info">
@@ -97,7 +137,9 @@ const Gallery = ({ users }: GalleryProps) => {
                   </div>
                   <div className="field">
                     <FaLocationDot className="icon" />
-                    <div className="data">{`${selectedUser.address.street}, ${selectedUser.address.suite}, ${selectedUser.address.city}`}</div>
+                    <div className="data">
+                      {`${selectedUser.address.street}, ${selectedUser.address.suite}, ${selectedUser.address.city}`}
+                    </div>
                   </div>
                   <div className="field">
                     <FaPhone className="icon" />
