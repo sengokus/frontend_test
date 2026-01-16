@@ -37,13 +37,13 @@ const Gallery = ({ pokemon }: GalleryProps) => {
   };
 
   return (
-    <div className="user-gallery">
+    <div className="pokemon-gallery">
       <h1 className="heading">Pokemon</h1>
       <div className="items">
         {pokemonList &&
           pokemonList.map((pokemon, index) => (
             <div
-              className="item user-card"
+              className="item pokemon-card"
               key={index}
               onClick={() => handleModalOpen(pokemon.id)}
             >
@@ -58,7 +58,7 @@ const Gallery = ({ pokemon }: GalleryProps) => {
               </div>
               <div className="info">
                 <div className="name">{capitalize(pokemon.name)}</div>
-                <div className="company">
+                <div className="base-experience">
                   Base Experience: {pokemon.base_experience}
                 </div>
               </div>
@@ -67,7 +67,7 @@ const Gallery = ({ pokemon }: GalleryProps) => {
 
         {/* modal for selected pokemon */}
         <Modal isOpen={isModalOpen} onClose={handleModalClose}>
-          <div className="user-panel">
+          <div className="pokemon-panel">
             <div className="header">
               <div
                 role="button"
@@ -80,7 +80,7 @@ const Gallery = ({ pokemon }: GalleryProps) => {
             </div>
             <div className="body">
               {selectedPokemon && (
-                <div className="user-info info">
+                <div className="pokemon-info info">
                   <div className="avatar">
                     <Image
                       src={selectedPokemon.sprites.front_default}

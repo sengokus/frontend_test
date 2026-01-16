@@ -1,4 +1,4 @@
-.user-card {
+.pokemon-card {
   display: flex;
   flex-flow: row nowrap;
 
@@ -35,7 +35,7 @@
     font-weight: 600;
   }
 
-  > .info > .company {
+  > .info > .base-experience {
     color: #253858;
   }
 }
