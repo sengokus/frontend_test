@@ -1,66 +1,73 @@
 "use client";
 
 import { useState } from "react";
-import Avatar from "boring-avatars";
 import {
   FaRegCircleXmark,
-  FaLocationDot,
-  FaPhone,
   FaEnvelope,
+  FaBookmark,
+  FaList,
 } from "react-icons/fa6";
 
 import Modal from "./modal";
 
-import { User } from "./types/user";
+import { Pokemon } from "./types/pokemon";
+import { capitalize } from "./utils/string-utils";
+import Image from "next/image";
 
 export type GalleryProps = {
-  users: User[];
+  pokemon: Pokemon[];
 };
-const Gallery = ({ users }: GalleryProps) => {
-  const [usersList, setUsersList] = useState(users);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+const Gallery = ({ pokemon }: GalleryProps) => {
+  const [pokemonList, setPokemonList] = useState(pokemon);
+  const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleModalOpen = (id: number) => {
-    const user = usersList.find((item) => item.id === id) || null;
+    const pokemon = pokemonList.find((item) => item.id === id) || null;
 
-    if(user) {
-      setSelectedUser(user);
+    if (pokemon) {
+      setSelectedPokemon(pokemon);
       setIsModalOpen(true);
     }
   };
 
   const handleModalClose = () => {
-    setSelectedUser(null);
+    setSelectedPokemon(null);
     setIsModalOpen(false);
   };
 
   return (
-    <div className="user-gallery">
-      <h1 className="heading">Users</h1>
+    <div className="pokemon-gallery">
+      <h1 className="heading">Pokemon</h1>
       <div className="items">
-        {usersList.map((user, index) => (
-          <div
-            className="item user-card"
-            key={index}
-            onClick={() => handleModalOpen(user.id)}
-          >
-            <div className="body">
-              <Avatar
-                size={96}
-                name={user.name}
-                variant="marble"
-                colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]}
-              />
+        {pokemonList &&
+          pokemonList.map((pokemon, index) => (
+            <div
+              className="item pokemon-card"
+              key={index}
+              onClick={() => handleModalOpen(pokemon.id)}
+            >
+              <div className="body">
+                <Image
+                  src={pokemon.sprites.front_default || ""}
+                  alt={pokemon.name}
+                  width={96}
+                  height={96}
+                  className="avatar-image"
+                />
+              </div>
+              <div className="info">
+                <div className="name">{capitalize(pokemon.name)}</div>
+                <div className="base-experience">
+                  Base Experience: {pokemon.base_experience}
+                </div>
+              </div>
             </div>
-            <div className="info">
-              <div className="name">{user.name}</div>
-              <div className="company">{user.company.name}</div>
-            </div>
-          </div>
-        ))}
+          ))}
+
+        {/* modal for selected pokemon */}
         <Modal isOpen={isModalOpen} onClose={handleModalClose}>
-          <div className="user-panel">
+          <div className="pokemon-panel">
             <div className="header">
               <div
                 role="button"
@@ -72,41 +79,38 @@ const Gallery = ({ users }: GalleryProps) => {
               </div>
             </div>
             <div className="body">
-              {selectedUser && (
-                <div className="user-info info">
+              {selectedPokemon && (
+                <div className="pokemon-info info">
                   <div className="avatar">
-                    <Avatar
-                      size={240}
-                      name={selectedUser.name}
-                      variant="marble"
-                      colors={[
-                        "#92A1C6",
-                        "#146A7C",
-                        "#F0AB3D",
-                        "#C271B4",
-                        "#C20D90",
-                      ]}
+                    <Image
+                      src={selectedPokemon.sprites.front_default}
+                      alt={selectedPokemon.name}
+                      width={120}
+                      height={120}
+                      className="avatar-image"
                     />
                   </div>
-                  <div className="name">
-                    {selectedUser.name} ({selectedUser.username})
+                  <div className="name">{capitalize(selectedPokemon.name)}</div>
+                  <div className="field">
+                    <FaBookmark className="icon" />
+                    <div className="value">
+                      Base Experience: {selectedPokemon.base_experience}
+                    </div>
                   </div>
                   <div className="field">
-                    <FaLocationDot className="icon" />
-                    <div className="data">{`${selectedUser.address.street}, ${selectedUser.address.suite}, ${selectedUser.address.city}`}</div>
+                    <FaList className="icon" />
+                    <div className="value">
+                      {selectedPokemon.abilities
+                        .map((ability) => capitalize(ability.ability.name))
+                        .join(", ")}
+                    </div>
                   </div>
                   <div className="field">
-                    <FaPhone className="icon" />
-                    <div className="value">{selectedUser.phone}</div>
-                  </div>
-                  <div className="fields">
                     <FaEnvelope className="icon" />
-                    <div className="value">{selectedUser.email}</div>
-                  </div>
-                  <div className="company">
-                    <div className="name">{selectedUser.company.name}</div>
-                    <div className="catchphrase">
-                      {selectedUser.company.catchPhrase}
+                    <div className="value">
+                      {selectedPokemon.moves
+                        .map((move) => capitalize(move.move.name))
+                        .join(", ")}
                     </div>
                   </div>
                 </div>
